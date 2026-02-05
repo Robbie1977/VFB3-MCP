@@ -256,7 +256,17 @@ class VFBMCPServer {
         }
       });
 
+      // Create MCP app
+      const mcpApp = createMcpExpressApp({
+        host: process.env.HOST || '0.0.0.0',
+        allowedHosts: ['vfb3-mcp.virtualflybrain.org', 'localhost', '127.0.0.1']
+      });
+
+      // Mount MCP at /mcp
+      mainApp.use('/mcp', mcpApp);
+
       // OAuth discovery endpoints - return 404 to indicate no auth required
+      // Per MCP spec, these should be at server root
       mainApp.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
         console.error('MCP Debug: Responding to oauth-protected-resource request with 404');
         res.status(404).json({ error: 'No OAuth protection configured' });
@@ -271,15 +281,6 @@ class VFBMCPServer {
         console.error('MCP Debug: Responding to register request with 404');
         res.status(404).json({ error: 'Registration not required' });
       });
-
-      // Create MCP app
-      const mcpApp = createMcpExpressApp({
-        host: process.env.HOST || '0.0.0.0',
-        allowedHosts: ['vfb3-mcp.virtualflybrain.org', 'localhost', '127.0.0.1']
-      });
-
-      // Mount MCP at /mcp
-      mainApp.use('/mcp', mcpApp);
 
       // Debug logging for HTTP requests
       mainApp.use((req: any, res: any, next: any) => {
