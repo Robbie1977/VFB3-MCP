@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  vfb3-mcp:
+    build: .
+    container_name: vfb3-mcp-server
+    stdin_open: true
+    tty: true
+    # If you need to expose as HTTP server instead of stdio
+    # ports:
+    #   - "3000:3000"
