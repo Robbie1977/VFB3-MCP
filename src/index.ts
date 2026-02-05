@@ -10,6 +10,8 @@ import {
 import axios from 'axios';
 import cors from 'cors';
 import express from 'express';
+import { mcpAuthMetadataRouter, getOAuthProtectedResourceMetadataUrl } from '@modelcontextprotocol/sdk/server/auth/router.js';
+import { OAuthMetadata } from '@modelcontextprotocol/sdk/shared/auth.js';
 
 class VFBMCPServer {
   private server: Server;
@@ -223,6 +225,36 @@ class VFBMCPServer {
       // Enable CORS for MCP over HTTP
       mainApp.use(cors());
 
+      // Configure OAuth metadata (even though we don't require auth)
+      const mcpServerUrl = new URL(`http://${process.env.HOST || '0.0.0.0'}:${port}`);
+      const oauthMetadata: OAuthMetadata = {
+        issuer: mcpServerUrl.toString(),
+        authorization_endpoint: `${mcpServerUrl}oauth/authorize`,
+        token_endpoint: `${mcpServerUrl}oauth/token`,
+        response_types_supported: ['code'],
+      };
+
+      // Add MCP auth metadata router (provides OAuth discovery endpoints)
+      mainApp.use(
+        mcpAuthMetadataRouter({
+          oauthMetadata,
+          resourceServerUrl: mcpServerUrl,
+          scopesSupported: ['mcp:tools'],
+          resourceName: 'VFB3-MCP Server',
+        }),
+      );
+
+      // Also mount auth router at /mcp for Claude Desktop compatibility
+      mainApp.use(
+        '/mcp',
+        mcpAuthMetadataRouter({
+          oauthMetadata,
+          resourceServerUrl: mcpServerUrl,
+          scopesSupported: ['mcp:tools'],
+          resourceName: 'VFB3-MCP Server',
+        }),
+      );
+
       // Handle browser requests to root
       mainApp.get('/', (req: any, res: any, next: any) => {
         if (req.headers.accept && req.headers.accept.includes('text/html')) {
@@ -265,36 +297,29 @@ class VFBMCPServer {
       // Mount MCP at /mcp
       mainApp.use('/mcp', mcpApp);
 
-      // OAuth discovery endpoints - return empty metadata to indicate no auth required
-      // Claude Desktop seems to expect 200 responses, not 404
-      mainApp.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource request with empty metadata');
-        res.json({});
+      // Add OAuth discovery proxy for Claude Desktop compatibility
+      mainApp.get('/.well-known/oauth-protected-resource/mcp', async (req: any, res: any) => {
+        try {
+          // Proxy to the standard OAuth discovery endpoint
+          const response = await fetch(`${mcpServerUrl}.well-known/oauth-protected-resource`);
+          const data = await response.json();
+          res.json(data);
+        } catch (error) {
+          console.error('MCP Debug: Error proxying OAuth discovery:', error);
+          res.status(500).json({ error: 'OAuth discovery failed' });
+        }
       });
 
-      mainApp.get('/.well-known/oauth-protected-resource/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource/mcp request with empty metadata');
-        res.json({});
-      });
-
-      mainApp.get('/.well-known/oauth-authorization-server', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-authorization-server request with empty metadata');
-        res.json({});
-      });
-
-      mainApp.get('/.well-known/oauth-authorization-server/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-authorization-server/mcp request with empty metadata');
-        res.json({});
-      });
-
-      mainApp.post('/register', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to register request with 400');
-        res.status(400).json({ error: 'Registration not supported' });
-      });
-
-      mainApp.post('/register/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to register/mcp request with 400');
-        res.status(400).json({ error: 'Registration not supported' });
+      mainApp.get('/.well-known/oauth-authorization-server/mcp', async (req: any, res: any) => {
+        try {
+          // Proxy to the standard OAuth discovery endpoint
+          const response = await fetch(`${mcpServerUrl}.well-known/oauth-authorization-server`);
+          const data = await response.json();
+          res.json(data);
+        } catch (error) {
+          console.error('MCP Debug: Error proxying OAuth auth server:', error);
+          res.status(500).json({ error: 'OAuth auth server discovery failed' });
+        }
       });
 
       // Debug logging for HTTP requests
