@@ -216,16 +216,17 @@ class VFBMCPServer {
       // HTTP mode using Express
       console.error('MCP Debug: Starting server in HTTP mode on port', port);
       const app = createMcpExpressApp({
-        host: process.env.HOST || '0.0.0.0'
+        host: process.env.HOST || '0.0.0.0',
+        allowedHosts: ['vfb3-mcp.virtualflybrain.org', 'localhost', '127.0.0.1']
       });
 
       // Enable CORS for MCP over HTTP
       app.use(cors());
 
-      // OAuth discovery endpoints - return 404 to indicate no auth required
+      // OAuth discovery endpoints - return metadata indicating no auth required
       app.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource request with 404');
-        res.status(404).json({ error: 'No OAuth protection configured' });
+        console.error('MCP Debug: Responding to oauth-protected-resource request with no auth metadata');
+        res.status(200).json({ authorization_servers: [] });
       });
 
       app.get('/.well-known/oauth-authorization-server', (req: any, res: any) => {
