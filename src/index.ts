@@ -227,7 +227,8 @@ class VFBMCPServer {
 
       // Configure OAuth metadata (even though we don't require auth)
       // Use HTTPS issuer URL for MCP SDK compatibility (server runs behind reverse proxy)
-      const issuerUrl = process.env.ISSUER_URL || `https://${process.env.HOST || 'vfb3-mcp.virtualflybrain.org'}`;
+      // ISSUER_URL is the public-facing URL; HOST is only for binding and must not be used here
+      const issuerUrl = process.env.ISSUER_URL || 'https://vfb3-mcp.virtualflybrain.org';
       const mcpServerUrl = new URL(issuerUrl);
       const oauthMetadata: OAuthMetadata = {
         issuer: issuerUrl,
