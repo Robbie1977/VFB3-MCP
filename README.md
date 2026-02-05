@@ -106,13 +106,33 @@ This project uses GitHub Actions for automated building and deployment:
 
 - **Automated Builds**: Docker images are built on every push to any branch
 - **Docker Hub Publishing**: Images are automatically published to `virtualflybrain/vfb3-mcp`
-- **Branch Tagging**: Images are tagged with the branch name (e.g., `main`, `feature-branch`)
+- **Smart Tagging**: 
+  - Branch names for development builds
+  - Pull request numbers for PR builds
+  - `latest` tag for main branch builds
+- **Build Caching**: Faster builds using GitHub Actions cache
+- **Modern Actions**: Uses latest Docker GitHub Actions for reliability
 
-### Required Secrets
+### Workflow Configuration
 
-To enable Docker Hub publishing, set these repository secrets:
-- `DOCKER_HUB_USER`: Your Docker Hub username
-- `DOCKER_HUB_PASSWORD`: Your Docker Hub password or access token
+The CI/CD pipeline is defined in `.github/workflows/docker.yml` and includes:
+
+- **Buildx Setup**: Multi-platform build support
+- **Security**: Proper Docker Hub authentication
+- **Caching**: Layer caching for faster builds
+- **Metadata**: Automatic tagging based on branch/PR context
+
+### Testing Locally
+
+Before pushing, you can test the Docker build locally:
+
+```bash
+# Build the image
+docker build -t vfb3-mcp .
+
+# Test the container
+docker run -it vfb3-mcp
+```
 
 ## API Tools
 

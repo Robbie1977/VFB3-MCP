@@ -7,11 +7,18 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for building)
+RUN npm ci
 
-# Copy built application
-COPY dist/ ./dist/
+# Copy source code
+COPY src/ ./src/
+COPY tsconfig.json ./
+
+# Build the TypeScript application
+RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --production
 
 # Expose port if needed (though MCP uses stdio, might need HTTP for some clients)
 # EXPOSE 3000
