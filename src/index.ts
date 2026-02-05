@@ -226,11 +226,13 @@ class VFBMCPServer {
       mainApp.use(cors());
 
       // Configure OAuth metadata (even though we don't require auth)
-      const mcpServerUrl = new URL(`http://${process.env.HOST || '0.0.0.0'}:${port}`);
+      // Use HTTPS issuer URL for MCP SDK compatibility (server runs behind reverse proxy)
+      const issuerUrl = process.env.ISSUER_URL || `https://${process.env.HOST || 'vfb3-mcp.virtualflybrain.org'}`;
+      const mcpServerUrl = new URL(issuerUrl);
       const oauthMetadata: OAuthMetadata = {
-        issuer: mcpServerUrl.toString(),
-        authorization_endpoint: `${mcpServerUrl}oauth/authorize`,
-        token_endpoint: `${mcpServerUrl}oauth/token`,
+        issuer: issuerUrl,
+        authorization_endpoint: `${issuerUrl}/oauth/authorize`,
+        token_endpoint: `${issuerUrl}/oauth/token`,
         response_types_supported: ['code'],
       };
 
@@ -300,24 +302,24 @@ class VFBMCPServer {
       // Add OAuth discovery proxy for Claude Desktop compatibility
       mainApp.get('/.well-known/oauth-protected-resource/mcp', async (req: any, res: any) => {
         try {
-          // Proxy to the standard OAuth discovery endpoint
-          const response = await fetch(`${mcpServerUrl}.well-known/oauth-protected-resource`);
-          const data = await response.json();
-          res.json(data);
+          // Return the same OAuth metadata
+          res.json({
+            resource: `${issuerUrl}/mcp`,
+            authorization_servers: [issuerUrl],
+            scopes_supported: ['mcp:tools']
+          });
         } catch (error) {
-          console.error('MCP Debug: Error proxying OAuth discovery:', error);
+          console.error('MCP Debug: Error returning OAuth discovery:', error);
           res.status(500).json({ error: 'OAuth discovery failed' });
         }
       });
 
       mainApp.get('/.well-known/oauth-authorization-server/mcp', async (req: any, res: any) => {
         try {
-          // Proxy to the standard OAuth discovery endpoint
-          const response = await fetch(`${mcpServerUrl}.well-known/oauth-authorization-server`);
-          const data = await response.json();
-          res.json(data);
+          // Return the OAuth authorization server metadata
+          res.json(oauthMetadata);
         } catch (error) {
-          console.error('MCP Debug: Error proxying OAuth auth server:', error);
+          console.error('MCP Debug: Error returning OAuth auth server:', error);
           res.status(500).json({ error: 'OAuth auth server discovery failed' });
         }
       });
