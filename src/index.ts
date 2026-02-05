@@ -8,6 +8,7 @@ import {
   McpError,
 } from '@modelcontextprotocol/sdk/types.js';
 import axios from 'axios';
+import cors from 'cors';
 
 class VFBMCPServer {
   private server: Server;
@@ -30,6 +31,7 @@ class VFBMCPServer {
 
   private setupToolHandlers() {
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
+      console.error('MCP Debug: Received ListTools request');
       return {
         tools: [
           {
@@ -84,6 +86,7 @@ class VFBMCPServer {
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const { name, arguments: args } = request.params;
+      console.error('MCP Debug: Received CallTool request for tool:', name, 'with args:', JSON.stringify(args));
 
       try {
         switch (name) {
@@ -94,12 +97,14 @@ class VFBMCPServer {
           case 'search_terms':
             return await this.handleSearchTerms(args as { query: string });
           default:
+            console.error('MCP Debug: Unknown tool requested:', name);
             throw new McpError(
               ErrorCode.MethodNotFound,
               `Unknown tool: ${name}`
             );
         }
       } catch (error) {
+        console.error('MCP Debug: Error calling tool', name, ':', error);
         throw new McpError(
           ErrorCode.InternalError,
           `Error calling tool ${name}: ${error}`
@@ -207,18 +212,23 @@ class VFBMCPServer {
 
     if (mode === 'http') {
       // HTTP mode using Express
+      console.error('MCP Debug: Starting server in HTTP mode on port', port);
       const app = createMcpExpressApp({
         host: process.env.HOST || '0.0.0.0'
       });
 
+      // Enable CORS for MCP over HTTP
+      app.use(cors());
+
       app.listen(parseInt(port), () => {
-        console.error(`VFB MCP Server running on HTTP port ${port}`);
+        console.error(`MCP Debug: VFB MCP Server running on HTTP port ${port}`);
       });
     } else {
       // Default stdio mode
+      console.error('MCP Debug: Starting server in stdio mode');
       const transport = new StdioServerTransport();
       await this.server.connect(transport);
-      console.error('VFB MCP Server running on stdio');
+      console.error('MCP Debug: VFB MCP Server running on stdio');
     }
   }
 }
