@@ -222,20 +222,20 @@ class VFBMCPServer {
       // Enable CORS for MCP over HTTP
       app.use(cors());
 
-      // OAuth discovery endpoints for public MCP server (no auth required)
+      // OAuth discovery endpoints - return 404 to indicate no auth required
       app.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource request');
-        res.json({ resource: 'https://vfb3-mcp.virtualflybrain.org', authorization_servers: [] });
+        console.error('MCP Debug: Responding to oauth-protected-resource request with 404');
+        res.status(404).json({ error: 'No OAuth protection configured' });
       });
 
       app.get('/.well-known/oauth-authorization-server', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-authorization-server request');
-        res.status(404).json({ error: 'No authorization server required' });
+        console.error('MCP Debug: Responding to oauth-authorization-server request with 404');
+        res.status(404).json({ error: 'No authorization server configured' });
       });
 
       app.post('/register', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to register request');
-        res.status(200).json({ message: 'Registration not required for public server' });
+        console.error('MCP Debug: Responding to register request with 404');
+        res.status(404).json({ error: 'Registration not required' });
       });
 
       // Debug logging for HTTP requests
