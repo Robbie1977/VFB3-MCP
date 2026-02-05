@@ -222,6 +222,22 @@ class VFBMCPServer {
       // Enable CORS for MCP over HTTP
       app.use(cors());
 
+      // OAuth discovery endpoints for public MCP server (no auth required)
+      app.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
+        console.error('MCP Debug: Responding to oauth-protected-resource request');
+        res.json({ resource: 'https://vfb3-mcp.virtualflybrain.org', authorization_servers: [] });
+      });
+
+      app.get('/.well-known/oauth-authorization-server', (req: any, res: any) => {
+        console.error('MCP Debug: Responding to oauth-authorization-server request');
+        res.status(404).json({ error: 'No authorization server required' });
+      });
+
+      app.post('/register', (req: any, res: any) => {
+        console.error('MCP Debug: Responding to register request');
+        res.status(200).json({ message: 'Registration not required for public server' });
+      });
+
       // Debug logging for HTTP requests
       app.use((req: any, res: any, next: any) => {
         console.error('MCP Debug: HTTP request:', req.method, req.url, 'from', req.ip, 'headers:', JSON.stringify(req.headers));
