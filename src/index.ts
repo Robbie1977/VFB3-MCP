@@ -265,36 +265,36 @@ class VFBMCPServer {
       // Mount MCP at /mcp
       mainApp.use('/mcp', mcpApp);
 
-      // OAuth discovery endpoints - return 404 to indicate no auth required
-      // Per MCP spec, these should be at server root, but Claude Desktop expects them with /mcp appended
+      // OAuth discovery endpoints - return empty metadata to indicate no auth required
+      // Claude Desktop seems to expect 200 responses, not 404
       mainApp.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource request with 404');
-        res.status(404).json({ error: 'No OAuth protection configured' });
+        console.error('MCP Debug: Responding to oauth-protected-resource request with empty metadata');
+        res.json({});
       });
 
       mainApp.get('/.well-known/oauth-protected-resource/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-protected-resource/mcp request with 404');
-        res.status(404).json({ error: 'No OAuth protection configured' });
+        console.error('MCP Debug: Responding to oauth-protected-resource/mcp request with empty metadata');
+        res.json({});
       });
 
       mainApp.get('/.well-known/oauth-authorization-server', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-authorization-server request with 404');
-        res.status(404).json({ error: 'No authorization server configured' });
+        console.error('MCP Debug: Responding to oauth-authorization-server request with empty metadata');
+        res.json({});
       });
 
       mainApp.get('/.well-known/oauth-authorization-server/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to oauth-authorization-server/mcp request with 404');
-        res.status(404).json({ error: 'No authorization server configured' });
+        console.error('MCP Debug: Responding to oauth-authorization-server/mcp request with empty metadata');
+        res.json({});
       });
 
       mainApp.post('/register', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to register request with 404');
-        res.status(404).json({ error: 'Registration not required' });
+        console.error('MCP Debug: Responding to register request with 400');
+        res.status(400).json({ error: 'Registration not supported' });
       });
 
       mainApp.post('/register/mcp', (req: any, res: any) => {
-        console.error('MCP Debug: Responding to register/mcp request with 404');
-        res.status(404).json({ error: 'Registration not required' });
+        console.error('MCP Debug: Responding to register/mcp request with 400');
+        res.status(400).json({ error: 'Registration not supported' });
       });
 
       // Debug logging for HTTP requests
