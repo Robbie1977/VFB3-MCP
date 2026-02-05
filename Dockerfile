@@ -21,7 +21,12 @@ RUN npm run build
 RUN npm prune --production
 
 # Expose port if needed (though MCP uses stdio, might need HTTP for some clients)
-# EXPOSE 3000
+EXPOSE 3000
+
+# Set environment variables for HTTP mode
+ENV MCP_MODE=http
+ENV PORT=3000
+ENV HOST=0.0.0.0
 
 # Run the application
 CMD ["npm", "start"]

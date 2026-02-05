@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vfb3-mcp
+  labels:
+    app: vfb3-mcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vfb3-mcp
+  template:
+    metadata:
+      labels:
+        app: vfb3-mcp
+    spec:
+      containers:
+      - name: vfb3-mcp
+        image: virtualflybrain/vfb3-mcp:latest
+        stdin: true
+        tty: true
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+        env:
+        - name: MCP_MODE
+          value: "http"
+        - name: PORT
+          value: "3000"
+        - name: HOST
+          value: "0.0.0.0"
+        volumeMounts:
+        - name: tmp-volume
+          mountPath: /tmp
+      volumes:
+      - name: tmp-volume
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vfb3-mcp-service
+spec:
+  selector:
+    app: vfb3-mcp
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP

@@ -6,6 +6,25 @@ services:
     container_name: vfb3-mcp-server
     stdin_open: true
     tty: true
+    # Resource limits for orchestration environments
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    # Security settings for orchestrated environments
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
     # If you need to expose as HTTP server instead of stdio
-    # ports:
-    #   - "3000:3000"
+    ports:
+      - "3000:3000"
+    environment:
+      - MCP_MODE=http
+      - PORT=3000
+      - HOST=0.0.0.0

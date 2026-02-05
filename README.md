@@ -2,6 +2,26 @@
 
 A Model Context Protocol (MCP) server for interacting with VirtualFlyBrain (VFB) APIs. This server provides tools to query VFB data, run queries, and search for terms.
 
+## 🚀 Live Service
+
+**Production Endpoint**: `https://vfb3-mcp.virtualflybrain.org`
+
+The VFB3-MCP service is running live on VFB's Rancher/Cattle infrastructure with HTTPS support and automatic SSL certificate management.
+
+### Quick Start for MCP Clients
+
+For Claude Code or GitHub Copilot:
+
+```json
+{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "url": "https://vfb3-mcp.virtualflybrain.org"
+    }
+  }
+}
+```
+
 ## Features
 
 - **get_term_info**: Retrieve detailed information about VFB terms using their IDs
@@ -46,17 +66,51 @@ VFB enables researchers to explore the complete fly brain at single-neuron resol
 
 ## Usage
 
-### Running Locally
+### Production Service
+
+The recommended way to use VFB3-MCP is through the live production service:
+
+**Endpoint**: `https://vfb3-mcp.virtualflybrain.org`
+
+#### MCP Client Configuration
+
+**For Claude Code** - Add to your `claude.json`:
+```json
+{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "url": "https://vfb3-mcp.virtualflybrain.org"
+    }
+  }
+}
+```
+
+**For GitHub Copilot** - Configure the MCP server URL in your Copilot settings to point to `https://vfb3-mcp.virtualflybrain.org`.
+
+### Local Development
+
+For development or testing, you can run the server locally:
+
+### HTTP Server Mode
+
+The production service runs in HTTP mode using the MCP SDK's Express transport with Server-Sent Events (SSE) for bidirectional communication.
+
+**Production Details**:
+- **Protocol**: HTTPS with automatic SSL certificates
+- **Transport**: Server-Sent Events (SSE) for real-time communication
+- **Authentication**: MCP protocol handles authentication
+- **Infrastructure**: Kubernetes deployment on VFB Rancher/Cattle
+
+### Local Development
+
+For development or testing, you can run the server locally in stdio mode:
 
 Start the MCP server:
 ```bash
 npm start
 ```
 
-### Using with Claude Code
-
-Add the server to your Claude Code configuration. In your `claude.json` or MCP configuration:
-
+For Claude Code local development:
 ```json
 {
   "mcpServers": {
@@ -68,13 +122,19 @@ Add the server to your Claude Code configuration. In your `claude.json` or MCP c
 }
 ```
 
-### Using with GitHub Copilot
-
-Configure the MCP server in your GitHub Copilot settings to point to the built server.
+For HTTP mode locally:
+```bash
+# Run in HTTP mode
+MCP_MODE=http PORT=3000 node dist/index.js
+```
 
 ## Docker
 
-### Build and Run with Docker
+### Production Deployment
+
+The live service at `https://vfb3-mcp.virtualflybrain.org` runs these Docker images on Kubernetes.
+
+### Build and Run Locally
 
 ```bash
 docker-compose up --build
@@ -88,11 +148,17 @@ docker build -t vfb3-mcp .
 
 The Dockerfile automatically builds the TypeScript source code during the container build process, so no separate compilation step is needed.
 
-### Run Docker Container
+### Production Deployment
 
-```bash
-docker run -it vfb3-mcp
-```
+The VFB3-MCP service is currently deployed and running at:
+
+**Live Endpoint**: `https://vfb3-mcp.virtualflybrain.org`
+
+This production deployment runs in HTTP mode on the VFB Rancher/Cattle infrastructure with:
+- Kubernetes orchestration
+- Automatic SSL certificate management
+- Load balancing and high availability
+- Resource limits and security hardening
 
 ### Docker Hub
 
@@ -102,9 +168,13 @@ Pre-built images are available on Docker Hub:
 docker pull virtualflybrain/vfb3-mcp:latest
 ```
 
+Images are built for multiple architectures (AMD64 and ARM64) and are automatically tagged based on the branch/PR that triggered the build.
+
+**Production Deployment**: The live service at `https://vfb3-mcp.virtualflybrain.org` uses these published Docker images deployed via Kubernetes on the VFB Rancher/Cattle infrastructure.
+
 ## CI/CD
 
-This project uses GitHub Actions for automated building and deployment:
+This project uses GitHub Actions for automated building and deployment of the Docker images that power the production service at `https://vfb3-mcp.virtualflybrain.org`.
 
 - **Automated Builds**: Docker images are built on every push to any branch
 - **TypeScript Compilation**: Source code is compiled during the Docker build process
@@ -121,6 +191,7 @@ This project uses GitHub Actions for automated building and deployment:
 The CI/CD pipeline is defined in `.github/workflows/docker.yml` and includes:
 
 - **Buildx Setup**: Multi-platform build support
+- **Multi-Architecture**: Builds for both AMD64 and ARM64 platforms
 - **Security**: Proper Docker Hub authentication
 - **Caching**: Layer caching for faster builds
 - **Metadata**: Automatic tagging based on branch/PR context
@@ -201,6 +272,7 @@ VFB3-MCP/
 ├── dist/                 # Compiled JavaScript
 ├── Dockerfile            # Docker configuration
 ├── docker-compose.yml    # Docker Compose setup
+├── k8s-deployment.yml    # Kubernetes deployment for Rancher/Cattle
 ├── package.json          # Node.js dependencies
 ├── tsconfig.json         # TypeScript configuration
 └── README.md             # This file

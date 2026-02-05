@@ -1,5 +1,6 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
 import {
   CallToolRequestSchema,
   ErrorCode,
@@ -201,9 +202,24 @@ class VFBMCPServer {
   }
 
   async run() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error('VFB MCP Server running on stdio');
+    const port = process.env.PORT || '3000';
+    const mode = process.env.MCP_MODE || 'stdio';
+
+    if (mode === 'http') {
+      // HTTP mode using Express
+      const app = createMcpExpressApp({
+        host: process.env.HOST || '0.0.0.0'
+      });
+
+      app.listen(parseInt(port), () => {
+        console.error(`VFB MCP Server running on HTTP port ${port}`);
+      });
+    } else {
+      // Default stdio mode
+      const transport = new StdioServerTransport();
+      await this.server.connect(transport);
+      console.error('VFB MCP Server running on stdio');
+    }
   }
 }
 
