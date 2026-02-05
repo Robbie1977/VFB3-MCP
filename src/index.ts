@@ -211,10 +211,11 @@ class VFBMCPServer {
   async run() {
     const port = process.env.PORT || '3000';
     const mode = process.env.MCP_MODE || 'stdio';
+    const version = '1.0.0'; // From package.json
 
     if (mode === 'http') {
       // HTTP mode using Express
-      console.error('MCP Debug: Starting server in HTTP mode on port', port);
+      console.error('MCP Debug: Starting VFB3-MCP server v' + version + ' in HTTP mode on port', port);
       const app = createMcpExpressApp({
         host: process.env.HOST || '0.0.0.0',
         allowedHosts: ['vfb3-mcp.virtualflybrain.org', 'localhost', '127.0.0.1']
@@ -222,6 +223,70 @@ class VFBMCPServer {
 
       // Enable CORS for MCP over HTTP
       app.use(cors());
+
+      // Handle browser requests to root
+      app.get('/', (req: any, res: any, next: any) => {
+        if (req.headers.accept && req.headers.accept.includes('text/html')) {
+          res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>VFB3-MCP Server</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                h1 { color: #333; }
+                p { line-height: 1.6; }
+              </style>
+            </head>
+            <body>
+              <h1>Virtual Fly Brain MCP Server v${version}</h1>
+              <p>This is a Model Context Protocol (MCP) server providing access to Virtual Fly Brain (VFB) data and APIs.</p>
+              <p><strong>Available Tools:</strong></p>
+              <ul>
+                <li><code>get_term_info</code> - Get term information from VirtualFlyBrain using a VFB ID</li>
+                <li><code>run_query</code> - Run a query on VirtualFlyBrain using a VFB ID and query type</li>
+                <li><code>search_terms</code> - Search for VFB terms using the Solr search server</li>
+              </ul>
+              <p>This endpoint is for MCP clients. For more information, visit <a href="https://virtualflybrain.org">Virtual Fly Brain</a>.</p>
+            </body>
+            </html>
+          `);
+        } else {
+          next(); // Let MCP handle it
+        }
+      });
+
+      // Handle browser requests to root
+      app.get('/', (req: any, res: any, next: any) => {
+        if (req.headers.accept && req.headers.accept.includes('text/html')) {
+          res.send(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+              <title>VFB3-MCP Server</title>
+              <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                h1 { color: #333; }
+                p { line-height: 1.6; }
+              </style>
+            </head>
+            <body>
+              <h1>Virtual Fly Brain MCP Server v${version}</h1>
+              <p>This is a Model Context Protocol (MCP) server providing access to Virtual Fly Brain (VFB) data and APIs.</p>
+              <p><strong>Available Tools:</strong></p>
+              <ul>
+                <li><code>get_term_info</code> - Get term information from VirtualFlyBrain using a VFB ID</li>
+                <li><code>run_query</code> - Run a query on VirtualFlyBrain using a VFB ID and query type</li>
+                <li><code>search_terms</code> - Search for VFB terms using the Solr search server</li>
+              </ul>
+              <p>This endpoint is for MCP clients. For more information, visit <a href="https://virtualflybrain.org">Virtual Fly Brain</a>.</p>
+            </body>
+            </html>
+          `);
+        } else {
+          next(); // Let MCP handle it
+        }
+      });
 
       // OAuth discovery endpoints - return metadata indicating no auth required
       app.get('/.well-known/oauth-protected-resource', (req: any, res: any) => {
