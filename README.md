@@ -6,13 +6,18 @@ A Model Context Protocol (MCP) server for interacting with VirtualFlyBrain (VFB)
 
 ### Use the Live Service (Recommended)
 
-The easiest way to use VFB3-MCP is through our hosted service:
+The easiest way to use VFB3-MCP is through our hosted service at `https://vfb3-mcp.virtualflybrain.org`. This requires no installation or setup on your machine.
 
-**Endpoint**: `https://vfb3-mcp.virtualflybrain.org`
+#### Claude Desktop Setup
 
-#### Configure Your MCP Client
+1. **Open Claude Desktop** and go to Settings
+2. **Navigate to the MCP section**
+3. **Add a new MCP server** with these settings:
+   - **Server Name**: `vfb3-mcp` (or any name you prefer)
+   - **Type**: HTTP
+   - **Server URL**: `https://vfb3-mcp.virtualflybrain.org`
 
-**Claude Desktop** - Add to your MCP configuration:
+**Configuration JSON** (alternative method):
 ```json
 {
   "mcpServers": {
@@ -23,7 +28,13 @@ The easiest way to use VFB3-MCP is through our hosted service:
 }
 ```
 
-**Claude Code** - Add to your `claude.json`:
+#### Claude Code Setup
+
+1. **Locate your Claude configuration file**:
+   - **macOS/Linux**: `~/.claude.json`
+   - **Windows**: `%USERPROFILE%\.claude.json`
+
+2. **Add the VFB3-MCP server** to your configuration:
 ```json
 {
   "mcpServers": {
@@ -34,7 +45,52 @@ The easiest way to use VFB3-MCP is through our hosted service:
 }
 ```
 
-**GitHub Copilot** - Configure the MCP server URL to: `https://vfb3-mcp.virtualflybrain.org`
+3. **Restart Claude Code** for changes to take effect
+
+#### GitHub Copilot Setup
+
+1. **Open VS Code** with GitHub Copilot installed
+2. **Open Settings** (`Ctrl/Cmd + ,`)
+3. **Search for "MCP"** in the settings search
+4. **Find the MCP Servers setting**
+5. **Add the server URL**: `https://vfb3-mcp.virtualflybrain.org`
+6. **Give it a name** like "Virtual Fly Brain"
+
+#### Visual Studio Code (with MCP Extension)
+
+1. **Install the MCP extension** for VS Code from the marketplace
+2. **Open the Command Palette** (`Ctrl/Cmd + Shift + P`)
+3. **Type "MCP: Add server"** and select it
+4. **Choose "HTTP"** as the server type
+5. **Enter the server details**:
+   - **Name**: `vfb3-mcp`
+   - **URL**: `https://vfb3-mcp.virtualflybrain.org`
+6. **Save and restart** VS Code if prompted
+
+#### Other MCP Clients
+
+For any MCP-compatible client that supports HTTP servers:
+
+```json
+{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "url": "https://vfb3-mcp.virtualflybrain.org",
+      "type": "http"
+    }
+  }
+}
+```
+
+#### Testing the Connection
+
+Once configured, you can test that VFB3-MCP is working by asking your AI assistant to:
+
+- "Get information about the term VFB_jrcv0i43"
+- "Search for terms related to medulla"
+- "Run a PaintedDomains query for VFB_00101567"
+
+If you see responses with VirtualFlyBrain data, the setup is successful!
 
 ## 🛠️ Local Installation
 
