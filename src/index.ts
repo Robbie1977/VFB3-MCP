@@ -255,22 +255,69 @@ class VFBMCPServer {
             <head>
               <title>VFB3-MCP Server</title>
               <style>
-                body { font-family: Arial, sans-serif; margin: 40px; }
+                body { font-family: Arial, sans-serif; margin: 40px; max-width: 800px; line-height: 1.6; }
                 h1 { color: #333; }
-                p { line-height: 1.6; }
+                h2 { color: #555; margin-top: 30px; }
+                h3 { color: #666; margin-top: 20px; }
+                code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; }
+                pre { background: #f4f4f4; padding: 15px; border-radius: 5px; overflow-x: auto; }
+                ul { margin: 10px 0; }
+                li { margin: 5px 0; }
+                a { color: #0066cc; text-decoration: none; }
+                a:hover { text-decoration: underline; }
+                .endpoint { background: #e8f4fd; padding: 10px; border-left: 4px solid #0066cc; margin: 20px 0; }
               </style>
             </head>
             <body>
               <h1>Virtual Fly Brain MCP Server v${version}</h1>
               <p>This is a Model Context Protocol (MCP) server providing access to Virtual Fly Brain (VFB) data and APIs.</p>
-              <p><strong>MCP Endpoint:</strong> <code>/</code> (server root)</p>
-              <p><strong>Available Tools:</strong></p>
+
+              <div class="endpoint">
+                <strong>MCP Endpoint:</strong> <code>https://vfb3-mcp.virtualflybrain.org/mcp</code>
+              </div>
+
+              <h2>Available Tools</h2>
               <ul>
                 <li><code>get_term_info</code> - Get term information from VirtualFlyBrain using a VFB ID</li>
                 <li><code>run_query</code> - Run a query on VirtualFlyBrain using a VFB ID and query type</li>
-                <li><code>search_terms</code> - Search for VFB terms using the Solr search server</li>
+                <li><code>search_terms</code> - Search for VFB terms using the Solr search server with filtering options</li>
               </ul>
-              <p>This server is designed for MCP clients like Claude Desktop. For more information, visit <a href="https://virtualflybrain.org">Virtual Fly Brain</a>.</p>
+
+              <h2>Quick Start for MCP Clients</h2>
+
+              <h3>Claude Desktop</h3>
+              <p>Add to your MCP server configuration:</p>
+              <pre><code>{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "url": "https://vfb3-mcp.virtualflybrain.org/mcp"
+    }
+  }
+}</code></pre>
+
+              <h3>Claude Code</h3>
+              <p>Add to your <code>claude.json</code>:</p>
+              <pre><code>{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "url": "https://vfb3-mcp.virtualflybrain.org/mcp"
+    }
+  }
+}</code></pre>
+
+              <h3>GitHub Copilot</h3>
+              <p>Configure the MCP server URL in your Copilot settings to point to <code>https://vfb3-mcp.virtualflybrain.org/mcp</code>.</p>
+
+              <h2>About VirtualFlyBrain</h2>
+              <p>VirtualFlyBrain (VFB) is a comprehensive knowledge base about <em>Drosophila melanogaster</em> neurobiology, integrating neuroanatomical 3D images and models, gene expression data, neural connectivity, and standardized terminology.</p>
+
+              <h2>Documentation</h2>
+              <ul>
+                <li><a href="https://github.com/Robbie1977/VFB3-MCP#readme">Full Documentation on GitHub</a></li>
+                <li><a href="https://virtualflybrain.org">Virtual Fly Brain Website</a></li>
+              </ul>
+
+              <p>This server is designed for MCP clients like Claude Desktop, Claude Code, and GitHub Copilot.</p>
             </body>
             </html>
           `);
