@@ -36,6 +36,115 @@ The easiest way to use VFB3-MCP is through our hosted service:
 
 **GitHub Copilot** - Configure the MCP server URL to: `https://vfb3-mcp.virtualflybrain.org`
 
+## 🛠️ Local Installation
+
+### Prerequisites
+
+- Node.js 18 or higher
+- npm or yarn
+
+### Step-by-Step Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/Robbie1977/VFB3-MCP.git
+   cd VFB3-MCP
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Build the project**:
+   ```bash
+   npm run build
+   ```
+
+4. **Start the server**:
+   ```bash
+   npm start
+   ```
+
+### Platform-Specific Setup
+
+#### Claude Desktop (Local Development)
+
+For local development with Claude Desktop, add this to your MCP configuration:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/VFB3-MCP/dist/index.js"]
+    }
+  }
+}
+```
+
+#### Claude Code
+
+Add to your `claude.json` file:
+```json
+{
+  "mcpServers": {
+    "vfb3-mcp": {
+      "command": "node",
+      "args": ["/absolute/path/to/VFB3-MCP/dist/index.js"]
+    }
+  }
+}
+```
+
+#### Visual Studio Code
+
+1. Install the MCP extension for VS Code
+2. Press `Cmd + Shift + P` (macOS) or `Ctrl + Shift + P` (Windows/Linux)
+3. Select **MCP: Add server…**
+4. Choose **Command** type
+5. Enter:
+   - **Name**: `vfb3-mcp`
+   - **Command**: `node`
+   - **Arguments**: `/absolute/path/to/VFB3-MCP/dist/index.js`
+
+#### GitHub Copilot
+
+Configure the MCP server URL in your Copilot settings to point to your local server:
+```
+http://localhost:3000
+```
+
+For HTTP mode testing:
+```bash
+MCP_MODE=http PORT=3000 node dist/index.js
+```
+
+### Docker Installation
+
+**Using Docker Compose** (Recommended):
+```bash
+docker-compose up --build
+```
+
+**Manual Docker Build**:
+```bash
+# Build the image
+docker build -t vfb3-mcp .
+
+# Run the container
+docker run -p 3000:3000 vfb3-mcp
+```
+
+**Pull Pre-built Image**:
+```bash
+docker pull virtualflybrain/vfb3-mcp:latest
+docker run -p 3000:3000 virtualflybrain/vfb3-mcp:latest
+```
+
 ##  Available Tools
 
 ### get_term_info
