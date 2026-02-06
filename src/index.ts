@@ -273,7 +273,7 @@ class VFBMCPServer {
               <p>This is a Model Context Protocol (MCP) server providing access to Virtual Fly Brain (VFB) data and APIs.</p>
 
               <div class="endpoint">
-                <strong>MCP Endpoint:</strong> <code>https://vfb3-mcp.virtualflybrain.org/mcp</code>
+                <strong>MCP Endpoint:</strong> <code>https://vfb3-mcp.virtualflybrain.org/</code>
               </div>
 
               <h2>Available Tools</h2>
@@ -290,7 +290,7 @@ class VFBMCPServer {
               <pre><code>{
   "mcpServers": {
     "vfb3-mcp": {
-      "url": "https://vfb3-mcp.virtualflybrain.org/mcp"
+      "url": "https://vfb3-mcp.virtualflybrain.org/"
     }
   }
 }</code></pre>
@@ -300,13 +300,13 @@ class VFBMCPServer {
               <pre><code>{
   "mcpServers": {
     "vfb3-mcp": {
-      "url": "https://vfb3-mcp.virtualflybrain.org/mcp"
+      "url": "https://vfb3-mcp.virtualflybrain.org/"
     }
   }
 }</code></pre>
 
               <h3>GitHub Copilot</h3>
-              <p>Configure the MCP server URL in your Copilot settings to point to <code>https://vfb3-mcp.virtualflybrain.org/mcp</code>.</p>
+              <p>Configure the MCP server URL in your Copilot settings to point to <code>https://vfb3-mcp.virtualflybrain.org/</code>.</p>
 
               <h2>About VirtualFlyBrain</h2>
               <p>VirtualFlyBrain (VFB) is a comprehensive knowledge base about <em>Drosophila melanogaster</em> neurobiology, integrating neuroanatomical 3D images and models, gene expression data, neural connectivity, and standardized terminology.</p>
