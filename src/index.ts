@@ -13,7 +13,7 @@ import cors from 'cors';
 import express from 'express';
 import { randomUUID } from 'node:crypto';
 
-const VERSION = '1.2.1';
+const VERSION = '1.2.2';
 
 function setupToolHandlers(server: Server) {
   server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -22,7 +22,7 @@ function setupToolHandlers(server: Server) {
       tools: [
         {
           name: 'get_term_info',
-          description: 'Get term information from VirtualFlyBrain using a VFB ID',
+          description: 'Get term information from VirtualFlyBrain using a VFB ID. The Images field is keyed by template brain ID — use these to construct VFB browser URLs: https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=<VFB_ID>&i=<TEMPLATE_ID>,<IMAGE_ID1>,<IMAGE_ID2> where id= is the focus term and i= is a comma-separated list of image IDs for the 3D viewer (template ID must be first in the i= list to set the coordinate space).',
           inputSchema: {
             type: 'object',
             properties: {

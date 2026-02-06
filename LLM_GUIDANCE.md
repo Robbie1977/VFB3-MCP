@@ -43,7 +43,10 @@ Returns comprehensive metadata about VFB entities:
   },
   "Tags": ["NBLAST", "has_image", "has_neuron_connectivity"],
   "Queries": ["SimilarMorphology", "Connectivity", "Expression"],
-  "Images": ["https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?..."],
+  "Images": {
+    "VFB_00101567": [{"id": "VFB_jrcv0i43", "label": "IN02A032_T2_L (MANC:23475)", "thumbnail": "...", "nrrd": "...", "obj": "..."}]
+  },
+  "IsTemplate": false,
   "Publications": ["DOI:10.1101/2020.12.08.417884"],
   "Synonyms": ["IN02A032_T2_L", "MANC:23475"]
 }
@@ -53,7 +56,7 @@ Returns comprehensive metadata about VFB entities:
 - **SuperTypes**: Classification hierarchy (Neuron, Anatomy, Cell, etc.)
 - **Tags**: Special properties (has_image, has_neuron_connectivity, NBLAST)
 - **Queries**: Available analyses for this entity
-- **Images**: Links to 3D visualizations and microscopy images
+- **Images**: Dictionary keyed by template brain ID, containing image objects with IDs, thumbnails, and 3D data files
 - **Publications**: Scientific references
 
 ### **Query Results Response (`run_query`)**
@@ -139,23 +142,77 @@ Available filter types are loaded dynamically from Solr at server startup, so th
 - **facets_annotation**: Categorization tags (also used for filtering)
 - **id**: Full ontology IRI
 
-## How to Interpret Image Links
+## How to Interpret Image Data
 
 VFB provides multiple types of images:
 
 ### **3D Brain Visualizations**
-- URLs like: `https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?...`
 - Interactive 3D models showing neuron morphology, expression patterns
-- Can be viewed in VFB's web interface or downloaded
+- Can be viewed in VFB's web interface or downloaded as `.nrrd`, `.wlz`, or `.obj` files
 
 ### **Microscopy Images**
 - High-resolution confocal images of fly brain sections
 - Show actual biological samples with fluorescent markers
-- Essential for validating expression patterns
 
 ### **Thumbnails**
-- Small preview images in query results
+- Small preview images (URLs containing `/thumbnail.png` or `/thumbnailT.png`)
 - Quick visual identification of brain regions or neuron types
+
+## Constructing VFB Browser URLs
+
+The VFB browser can be opened with specific terms and 3D scenes using URL parameters:
+
+```
+https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=<FOCUS_ID>&i=<IMAGE_ID1>,<IMAGE_ID2>,...
+```
+
+**Parameters:**
+- **`id=`** — A single VFB ID for the **focus term** shown in the term info panel
+- **`i=`** — A comma-separated list of VFB IDs for images to display together in the 3D viewer
+
+### Understanding the Images Field
+
+The `get_term_info` response contains an `Images` field that is a **dictionary keyed by template brain ID**:
+
+```json
+"Images": {
+  "VFB_00101567": [{"id": "VFB_00000001", "label": "fru-M-200266", ...}],
+  "VFB_00017894": [{"id": "VFB_00000001", "label": "fru-M-200266", ...}]
+}
+```
+
+Each key is a template brain ID (e.g., `VFB_00101567` = JRC2018Unisex). The images under each key are registered to that template. Only images registered to the **same template** will align correctly in the 3D viewer.
+
+### Rules for Constructing URLs
+
+1. **Always put the template ID first** in the `i=` list to ensure the correct 3D brain coordinate space is loaded
+2. **Only combine images registered to the same template** — check the `Images` dictionary keys to determine which template each image belongs to
+3. **The `id=` parameter sets the focus term** — this is typically the entity the user asked about
+
+### Examples
+
+**View a single neuron on its template:**
+```
+https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=VFB_00000001&i=VFB_00101567,VFB_00000001
+```
+`VFB_00101567` (JRC2018Unisex template) is listed first in `i=`, followed by the neuron `VFB_00000001`. The `id=VFB_00000001` sets the focus to the neuron.
+
+**View multiple neurons together in 3D:**
+```
+https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=VFB_00000001&i=VFB_00101567,VFB_00000333,VFB_00000001
+```
+Multiple image IDs after the template ID will all be rendered together, provided they are all registered to `VFB_00101567`.
+
+**View just a term's info (no 3D scene):**
+```
+https://v2.virtualflybrain.org/org.geppetto.frontend/geppetto?id=FBbt_00003624
+```
+Omitting the `i=` parameter opens the term info panel without loading a 3D scene.
+
+### Identifying Templates
+
+A term is a template brain if its `SuperTypes` array from `get_term_info` includes `"Template"`. Common templates:
+- `VFB_00101567` — JRC2018Unisex (adult brain)
 
 ## Crawling Through Data (Navigation Strategy)
 
@@ -214,7 +271,7 @@ VFB provides multiple types of images:
 3. **Get detailed information** - Use get_term_info for context
 4. **Run relevant queries** - Use run_query for analyses
 5. **Explain findings** - Provide scientific interpretation
-6. **Suggest visualizations** - Direct to image links when relevant
+6. **Suggest visualizations** - Construct VFB browser URLs to let users view results in 3D (see "Constructing VFB Browser URLs" section)
 
 ### **Common Query Patterns**
 - Gene expression: Search for gene name with `filter_types: ["gene"]` → get_term_info → run PaintedDomains query
